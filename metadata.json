@@ -1,0 +1,5 @@
+{
+  "name": "ROCK HACKER",
+  "description": "An ultimate terminal-style profile analyzer simulation. Enter a username to retrieve a generated cyber-dossier, personality analysis, and simulated contact details.",
+  "requestFramePermissions": []
+}
