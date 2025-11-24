@@ -1,7 +1,15 @@
 import { GoogleGenAI } from "@google/genai";
 import { TargetProfile } from "../types";
 
-const ai = new GoogleGenAI({ apiKey: process.env.API_KEY });
+// Removed top-level initialization to prevent crash on app load if API key is missing
+// const ai = new GoogleGenAI({ apiKey: process.env.API_KEY });
+
+const getAiClient = () => {
+    if (!process.env.API_KEY) {
+        throw new Error("SYSTEM ERROR: API KEY NOT FOUND IN ENVIRONMENT VARIABLES.");
+    }
+    return new GoogleGenAI({ apiKey: process.env.API_KEY });
+};
 
 // Helper to reliably parse JSON from AI response (which might contain markdown)
 const parseJSON = (text: string) => {
@@ -16,8 +24,9 @@ const parseJSON = (text: string) => {
 };
 
 export const performSystemHack = async (username: string): Promise<TargetProfile> => {
-  // Enhanced prompt to use Google Search for GROUND TRUTH
+  const ai = getAiClient();
   
+  // Enhanced prompt to use Google Search for GROUND TRUTH
   const prompt = `
     ROLE: You are an elite AI OSINT (Open Source Intelligence) Investigator.
     TARGET USERNAME: "${username}"
@@ -97,6 +106,8 @@ export const performSystemHack = async (username: string): Promise<TargetProfile
 
 // New Function for Live Deep Scan (In-App Verification)
 export const performLiveDeepScan = async (username: string, currentProfile: TargetProfile): Promise<TargetProfile> => {
+    const ai = getAiClient();
+    
     const prompt = `
       ROLE: Live Instagram Graph API Simulator.
       ACTION: Perform a DEEP PACKET INSPECTION on "${username}" using Google Search to get LATEST LIVE DATA.
