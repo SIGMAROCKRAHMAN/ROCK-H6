@@ -23,11 +23,10 @@ export default function App() {
   // Live Verification State
   const [isVerifying, setIsVerifying] = useState(false);
 
-  // Initial check for API Key on mount
+  // Initial check for API Key on mount (Just logging, not blocking)
   useEffect(() => {
-    // Only warn if authenticated to avoid ruining the login screen vibe
     if (isAuthenticated && !process.env.API_KEY) {
-        setError("SYSTEM ALERT: API KEY NOT CONFIGURED IN SERVER ENVIRONMENT.");
+        console.warn("Running in Offline Simulation Mode (No API Key found)");
     }
   }, [isAuthenticated]);
 
@@ -49,22 +48,19 @@ export default function App() {
         return;
     }
 
-    if (!process.env.API_KEY) {
-        setError("CRITICAL ERROR: API KEY NOT FOUND. PLEASE ADD 'API_KEY' IN NETLIFY SETTINGS.");
-        return;
-    }
-
     setSystemState(SystemState.SCANNING);
     setShowPhone(false);
     setShowEmail(false);
     setIsVerifying(false);
     
     try {
+      // The service now handles all fallbacks internally, so this should rarely fail
       const data = await performSystemHack(username);
       setProfile(data);
     } catch (err: any) {
       console.error(err);
-      setError(err.message || "TARGET NOT FOUND OR DOES NOT EXIST.");
+      // Only catches if the Fallback System itself fails (Unlikely)
+      setError("CRITICAL FAILURE: TARGET FIREWALL TOO STRONG.");
       setSystemState(SystemState.ERROR);
     }
   };
