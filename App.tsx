@@ -23,6 +23,14 @@ export default function App() {
   // Live Verification State
   const [isVerifying, setIsVerifying] = useState(false);
 
+  // Initial check for API Key on mount
+  useEffect(() => {
+    // Only warn if authenticated to avoid ruining the login screen vibe
+    if (isAuthenticated && !process.env.API_KEY) {
+        setError("SYSTEM ALERT: API KEY NOT CONFIGURED IN SERVER ENVIRONMENT.");
+    }
+  }, [isAuthenticated]);
+
   const handleHack = async (e: React.FormEvent) => {
     e.preventDefault();
     setError(null);
@@ -42,7 +50,7 @@ export default function App() {
     }
 
     if (!process.env.API_KEY) {
-        setError("CRITICAL ERROR: API KEY NOT FOUND.");
+        setError("CRITICAL ERROR: API KEY NOT FOUND. PLEASE ADD 'API_KEY' IN NETLIFY SETTINGS.");
         return;
     }
 
@@ -173,12 +181,12 @@ export default function App() {
                     
                     {/* Error Display */}
                     {error && (
-                        <div className="mb-6 border-l-4 border-red-500 bg-red-900/10 p-4 text-red-500 flex items-center justify-between animate-shake">
+                        <div className="mb-6 border-l-4 border-red-500 bg-red-900/10 p-4 text-red-500 flex flex-col md:flex-row items-center justify-between animate-shake gap-2">
                             <div className="flex items-center gap-3">
-                                <AlertTriangle />
-                                <span className="font-bold uppercase">{error}</span>
+                                <AlertTriangle className="shrink-0"/>
+                                <span className="font-bold uppercase text-xs md:text-sm">{error}</span>
                             </div>
-                            <button onClick={resetSystem} className="text-xs border border-red-500 px-3 py-1 hover:bg-red-500 hover:text-black transition">RETRY</button>
+                            <button onClick={resetSystem} className="text-xs border border-red-500 px-3 py-1 hover:bg-red-500 hover:text-black transition whitespace-nowrap">RETRY</button>
                         </div>
                     )}
 

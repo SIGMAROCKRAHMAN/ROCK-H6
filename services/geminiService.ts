@@ -5,10 +5,12 @@ import { TargetProfile } from "../types";
 // const ai = new GoogleGenAI({ apiKey: process.env.API_KEY });
 
 const getAiClient = () => {
-    if (!process.env.API_KEY) {
-        throw new Error("SYSTEM ERROR: API KEY NOT FOUND IN ENVIRONMENT VARIABLES.");
+    // Note: process.env.API_KEY is replaced by vite.config.ts define
+    const key = process.env.API_KEY;
+    if (!key) {
+        throw new Error("SYSTEM ERROR: API KEY NOT FOUND. CHECK NETLIFY SETTINGS.");
     }
-    return new GoogleGenAI({ apiKey: process.env.API_KEY });
+    return new GoogleGenAI({ apiKey: key });
 };
 
 // Helper to reliably parse JSON from AI response (which might contain markdown)
