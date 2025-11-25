@@ -4,16 +4,28 @@ import { TargetProfile, PostPreview } from "../types";
 // Helper to reliably parse JSON from AI response
 const parseJSON = (text: string) => {
   try {
-    const cleanText = text.replace(/```json/g, '').replace(/```/g, '').trim();
+    let cleanText = text.replace(/```json/g, '').replace(/```/g, '').trim();
+    
+    // Robust Extraction: Find the substring starting with '{' and ending with '}'
+    const firstBrace = cleanText.indexOf('{');
+    const lastBrace = cleanText.lastIndexOf('}');
+    
+    if (firstBrace !== -1 && lastBrace !== -1) {
+        cleanText = cleanText.substring(firstBrace, lastBrace + 1);
+    } else {
+        // If no braces found, it's not JSON
+        throw new Error("No JSON object found in text");
+    }
+
     return JSON.parse(cleanText);
   } catch (e) {
     console.error("JSON Parse Error:", e);
+    // console.log("Failed Text:", text); // Debugging
     return null;
   }
 };
 
 // --- MOCK DATA GENERATOR (PLAN C: CRASH PROTECTION) ---
-// Generates consistent fake data based on username if API fails
 const getHash = (str: string) => {
   let hash = 0;
   for (let i = 0; i < str.length; i++) {
@@ -51,17 +63,17 @@ const generateMockProfile = (username: string): TargetProfile => {
 
 const getAiClient = () => {
     const key = process.env.API_KEY;
-    if (!key) return null; // Don't throw, just return null to trigger fallback
+    if (!key) return null; 
     return new GoogleGenAI({ apiKey: key });
 };
 
 export const performSystemHack = async (username: string): Promise<TargetProfile> => {
   const ai = getAiClient();
   
-  // 1. IF NO API KEY or Client, USE MOCK DATA IMMEDIATELY
+  // 1. IF NO API KEY, USE MOCK DATA
   if (!ai) {
-      console.warn("No API Key detected. Using Simulation Mode.");
-      await new Promise(r => setTimeout(r, 2000)); // Fake delay
+      console.warn("No API Key. Using Simulation.");
+      await new Promise(r => setTimeout(r, 2000));
       return generateMockProfile(username);
   }
 
@@ -69,11 +81,11 @@ export const performSystemHack = async (username: string): Promise<TargetProfile
   const prompt = `
     ROLE: OSINT Investigator.
     TARGET: "${username}" on Instagram.
-    TASK: Search for this user. 
+    TASK: Search for this user.
     - If famous/public, return REAL stats (Followers, Bio, Name).
-    - If private/unknown, generate REALISTIC simulation data.
-    - Risk Level: INVALID if username is gibberish.
-    OUTPUT: JSON Only. Fields: username, realName, location, ipAddress, riskLevel, device, bio, email, phone, followers, following, posts, weaknesses, recentActivity.
+    - If private/unknown, generate REALISTIC simulation data based on the username style.
+    OUTPUT: Valid JSON Object ONLY. Do not add conversational text.
+    Fields: username, realName, location, ipAddress, riskLevel, device, bio, email, phone, followers, following, posts, weaknesses, recentActivity.
   `;
 
   try {
@@ -91,13 +103,13 @@ export const performSystemHack = async (username: string): Promise<TargetProfile
     console.error("Plan A (Search) Failed:", error);
   }
 
-  // 3. TRY PLAN B: STANDARD AI SIMULATION (No Search)
+  // 3. TRY PLAN B: STANDARD AI SIMULATION
   try {
       const fallbackPrompt = `
-        Generate a REALISTIC fictional hacker dossier for Instagram user "${username}".
+        Generate a JSON profile for Instagram user "${username}".
         Context: Indian user.
-        Return JSON matching TargetProfile interface.
-        Use realistic numbers (e.g. Followers: 1.2K).
+        Return JSON ONLY. No markdown.
+        Fields matches TargetProfile interface.
         Phone: +91 XXXXX (Masked).
       `;
       const response = await ai.models.generateContent({
@@ -112,20 +124,19 @@ export const performSystemHack = async (username: string): Promise<TargetProfile
       console.error("Plan B (AI) Failed:", error);
   }
 
-  // 4. PLAN C: FALLBACK TO LOCAL MOCK (Never Fail)
+  // 4. PLAN C: FALLBACK (Never Fail)
   return generateMockProfile(username);
 };
 
 export const performLiveDeepScan = async (username: string, currentProfile: TargetProfile): Promise<TargetProfile> => {
     const ai = getAiClient();
     
-    // If offline, simulate a scan
     if (!ai) {
         await new Promise(r => setTimeout(r, 1500));
         return {
             ...currentProfile,
             isVerifiedLive: true,
-            followers: currentProfile.followers.includes('K') ? currentProfile.followers : "1,240", // Small change
+            followers: currentProfile.followers.includes('K') ? currentProfile.followers : "1,240",
             postPreviews: [
                 { id: '1', type: 'IMAGE', caption: 'Living my best life ✨', likes: '243', comments: '12' },
                 { id: '2', type: 'REEL', caption: 'Travel diaries ✈️', likes: '1.2K', comments: '45' },
@@ -137,7 +148,7 @@ export const performLiveDeepScan = async (username: string, currentProfile: Targ
     const prompt = `
       Perform LIVE verification for "${username}".
       Extract LATEST exact follower count and 3 post previews.
-      Return JSON: { realName, followers, following, posts, postPreviews: [{id, type, caption, likes, comments}] }
+      Return JSON Only: { realName, followers, following, posts, postPreviews: [{id, type, caption, likes, comments}] }
     `;
 
     try {
@@ -157,6 +168,5 @@ export const performLiveDeepScan = async (username: string, currentProfile: Targ
          console.error("Live Scan Error:", error);
     }
 
-    // Fallback if live scan fails: Just mark as verified and keep old data
     return { ...currentProfile, isVerifiedLive: true };
 };

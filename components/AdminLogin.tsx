@@ -90,7 +90,7 @@ const AdminLogin: React.FC<AdminLoginProps> = ({ onLogin }) => {
 
   // Biometric Simulation Logic (Visual Only)
   useEffect(() => {
-    let interval: NodeJS.Timeout;
+    let interval: ReturnType<typeof setInterval>;
     if (scanning && scanProgress < 100) {
         // Simple haptic pulse if supported
         if (typeof navigator !== 'undefined' && navigator.vibrate) navigator.vibrate(10);
