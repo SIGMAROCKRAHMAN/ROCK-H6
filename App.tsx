@@ -29,28 +29,45 @@ export default function App() {
     }
   }, [isAuthenticated]);
 
-  // --- DARK VOICE WELCOME EFFECT ---
+  // --- DARK HINDI VOICE WELCOME EFFECT ---
   useEffect(() => {
     if (isAuthenticated) {
-      // Small delay to allow screen transition
-      setTimeout(() => {
+      const speakWelcome = () => {
+        // The exact phrase requested
         const text = "Welcome to my hacker, Rock Rahman Bhai.";
+        
+        // Cancel any ongoing speech to prevent overlap
+        window.speechSynthesis.cancel();
+
         const utterance = new SpeechSynthesisUtterance(text);
         
-        // DARK VOICE CONFIGURATION
-        utterance.pitch = 0.6; // Low pitch (Deep voice)
-        utterance.rate = 0.85; // Slightly slow (Professional/Cinematic)
+        // HINDI & DARK VOICE CONFIGURATION
+        utterance.lang = 'hi-IN'; // Hindi accent
+        utterance.pitch = 0.5;    // UPDATED: 0.5 (Dark/Professional)
+        utterance.rate = 0.8;     // UPDATED: 0.8 (Slow/Dramatic but clear)
         utterance.volume = 1.0;
 
-        // Try to select a deeper system voice if available
         const voices = window.speechSynthesis.getVoices();
-        const preferredVoice = voices.find(v => v.name.includes("Male") || v.name.includes("David") || v.name.includes("Google US English"));
+        
+        // Priority: Hindi Voice -> Google Hindi -> Any Voice
+        const preferredVoice = voices.find(v => 
+            v.lang === 'hi-IN' || v.name.includes('Hindi') || v.name.includes('Google Hindi')
+        );
+
         if (preferredVoice) {
           utterance.voice = preferredVoice;
         }
 
         window.speechSynthesis.speak(utterance);
-      }, 500);
+      };
+
+      // Ensure voices are loaded (Chrome quirk)
+      if (window.speechSynthesis.getVoices().length === 0) {
+        window.speechSynthesis.onvoiceschanged = speakWelcome;
+      } else {
+        // Small delay to allow screen transition visually before audio
+        setTimeout(speakWelcome, 800);
+      }
     }
   }, [isAuthenticated]);
 
@@ -140,7 +157,7 @@ export default function App() {
 
   if (!isAuthenticated) {
     return (
-      <div className="relative min-h-screen bg-black overflow-hidden font-mono">
+      <div className="relative min-h-screen bg-black overflow-hidden font-mono bg-[radial-gradient(circle_at_center,_#200000_0%,_#000000_70%)]">
         <MatrixRain color="#FF0000" /> {/* Red Rain for Login */}
         <div className="scan-line"></div>
         <div className="crt-overlay"></div>
@@ -152,23 +169,28 @@ export default function App() {
   }
 
   return (
-    <div className="relative min-h-screen bg-black text-green-500 font-mono overflow-x-hidden">
+    <div className="relative min-h-screen bg-black text-green-500 font-mono overflow-x-hidden selection:bg-green-500/30 selection:text-white bg-[radial-gradient(circle_at_center,_#001100_0%,_#000000_80%)]">
       <MatrixRain color="#0F0" />
       <div className="scan-line"></div>
       <div className="crt-overlay"></div>
 
-      {/* HEADER */}
-      <div className="fixed top-0 w-full bg-black/80 border-b border-green-900 z-30 flex justify-between items-center px-4 py-2 backdrop-blur-sm">
-        <div className="flex items-center gap-2">
-            <Terminal size={18} />
-            <span className="text-sm font-bold tracking-widest">ROCK_HACKER_TERMINAL_V6.0</span>
+      {/* HEADER - HD Glass Effect */}
+      <div className="fixed top-0 w-full bg-black/60 border-b border-green-500/30 z-30 flex justify-between items-center px-4 py-3 backdrop-blur-md shadow-[0_4px_20px_rgba(0,0,0,0.5)]">
+        <div className="flex items-center gap-3">
+            <div className="p-1.5 border border-green-500 rounded bg-green-500/10 shadow-[0_0_10px_rgba(0,255,0,0.3)]">
+                <Terminal size={16} />
+            </div>
+            <div className="flex flex-col">
+                <span className="text-sm font-bold tracking-[0.2em] text-white drop-shadow-[0_0_5px_rgba(255,255,255,0.5)]">ROCK_HACKER</span>
+                <span className="text-[9px] text-green-600 tracking-widest">SYSTEM_V6.0 // ONLINE</span>
+            </div>
         </div>
-        <button onClick={handleLogout} className="flex items-center gap-1 text-xs bg-red-900/20 text-red-500 px-3 py-1 border border-red-900 hover:bg-red-900/40 transition-colors">
+        <button onClick={handleLogout} className="flex items-center gap-2 text-[10px] bg-red-950/30 text-red-500 px-4 py-1.5 border border-red-900 rounded hover:bg-red-900/50 hover:text-red-300 hover:border-red-500 transition-all shadow-[0_0_10px_rgba(255,0,0,0.1)] backdrop-blur-sm">
             <LogOut size={12} /> ABORT SESSION
         </button>
       </div>
 
-      <div className="relative z-10 pt-16 pb-10 px-4 max-w-4xl mx-auto min-h-screen flex flex-col justify-center">
+      <div className="relative z-10 pt-24 pb-10 px-4 max-w-4xl mx-auto min-h-screen flex flex-col justify-center">
         
         {/* VIEW: SCANNING LOADER */}
         {systemState === SystemState.SCANNING && (
@@ -177,53 +199,64 @@ export default function App() {
 
         {/* VIEW: SEARCH INPUT (IDLE or ERROR) */}
         {(systemState === SystemState.IDLE || systemState === SystemState.ERROR) && (
-          <div className="w-full max-w-lg mx-auto space-y-8">
-            <div className="text-center space-y-2">
-               <Skull size={64} className="mx-auto text-green-600 animate-pulse" />
-               <h1 className="text-4xl md:text-5xl font-bold tracking-tighter text-transparent bg-clip-text bg-gradient-to-r from-green-400 to-green-800" style={{ textShadow: '0 0 10px rgba(0,255,0,0.5)' }}>
-                 TARGET ACQUISITION
-               </h1>
-               <p className="text-sm md:text-base opacity-70 max-w-md mx-auto">
-                 ENTER USERNAME TO EXTRACT DATA. AI WILL VALIDATE IDENTITY AND CONNECT TO INSTAGRAM SERVERS.
+          <div className="w-full max-w-xl mx-auto space-y-10">
+            <div className="text-center space-y-4">
+               <div className="relative inline-block">
+                    <div className="absolute inset-0 bg-green-500 blur-3xl opacity-10 rounded-full animate-pulse"></div>
+                    <Skull size={80} className="mx-auto text-green-500 relative z-10 drop-shadow-[0_0_15px_rgba(0,255,0,0.6)] animate-[pulse_3s_ease-in-out_infinite]" />
+               </div>
+               
+               <div>
+                    <h1 className="text-5xl md:text-6xl font-black tracking-tighter text-white uppercase" style={{ textShadow: '0 0 20px rgba(0,255,0,0.4)' }}>
+                        Target <span className="text-green-500">Acquisition</span>
+                    </h1>
+                    <div className="h-0.5 w-32 bg-green-500/50 mx-auto mt-4 shadow-[0_0_10px_#0f0]"></div>
+               </div>
+
+               <p className="text-xs md:text-sm text-green-400/70 max-w-md mx-auto tracking-wide leading-relaxed">
+                 ENTER USERNAME TO INITIATE DEEP PACKET INSPECTION. <br/>
+                 AI NEURAL ENGINE WILL BYPASS FIREWALL & EXTRACT METADATA.
                </p>
             </div>
 
-            <form onSubmit={handleHack} className="space-y-4">
+            <form onSubmit={handleHack} className="space-y-6">
                {error && (
-                 <div className="border border-red-500 bg-red-900/20 p-4 flex items-start gap-3 text-red-400 text-sm animate-pulse">
-                    <AlertTriangle className="shrink-0 mt-0.5" size={16} />
-                    <div className="flex flex-col">
-                        <span className="font-bold">SYSTEM ERROR</span>
+                 <div className="border-l-4 border-red-500 bg-red-950/40 p-4 flex items-start gap-4 text-red-400 text-sm animate-[shake_0.5s_ease-in-out] backdrop-blur-sm shadow-lg">
+                    <AlertTriangle className="shrink-0 mt-0.5" size={18} />
+                    <div className="flex flex-col gap-1">
+                        <span className="font-bold tracking-wider text-red-300">SYSTEM FAILURE</span>
                         <span>{error}</span>
-                        {error.includes("API KEY") && <span className="text-xs mt-1 text-red-300">Set API_KEY in Netlify Settings.</span>}
+                        {error.includes("API KEY") && <span className="text-xs mt-1 text-red-400/80 bg-black/50 p-1 px-2 rounded w-fit">Set API_KEY in Netlify Settings.</span>}
                     </div>
                  </div>
                )}
 
                <div className="relative group">
-                 <div className="absolute -inset-1 bg-gradient-to-r from-green-600 to-green-900 rounded opacity-20 group-hover:opacity-40 transition duration-500 blur"></div>
-                 <div className="relative flex items-center bg-black border border-green-800 p-2">
-                    <span className="pl-3 pr-2 text-green-700">{">"}</span>
+                 {/* Input Glow Effect */}
+                 <div className="absolute -inset-0.5 bg-gradient-to-r from-green-500 to-green-900 rounded-lg opacity-30 group-hover:opacity-60 transition duration-500 blur"></div>
+                 
+                 <div className="relative flex items-center bg-black/90 border border-green-500/30 rounded-lg p-1 backdrop-blur-md shadow-2xl">
+                    <div className="pl-4 pr-3 text-green-500 animate-pulse">{">"}</div>
                     <input 
                       type="text" 
                       value={username}
                       onChange={(e) => setUsername(e.target.value.replace(/\s/g, ''))}
                       placeholder="ENTER_USERNAME"
-                      className="flex-1 bg-transparent text-green-400 placeholder-green-900 focus:outline-none font-mono text-lg tracking-wider uppercase"
+                      className="flex-1 bg-transparent text-white placeholder-green-800 focus:outline-none font-mono text-xl tracking-widest uppercase py-3"
                       autoComplete="off"
                     />
                     <button 
                       type="submit"
-                      className="bg-green-900/30 hover:bg-green-800/50 text-green-400 px-6 py-2 text-sm font-bold tracking-widest border-l border-green-800 transition-all hover:text-green-300"
+                      className="bg-green-600/20 hover:bg-green-500/40 text-green-400 hover:text-white px-8 py-3 rounded-md text-sm font-bold tracking-[0.2em] border border-green-500/30 transition-all hover:shadow-[0_0_15px_rgba(0,255,0,0.3)] hover:scale-105 active:scale-95"
                     >
-                      INITIATE
+                      HACK
                     </button>
                  </div>
                </div>
 
-               <div className="flex justify-center gap-8 text-[10px] text-green-800 uppercase tracking-[0.2em]">
-                  <span className="flex items-center gap-1"><Wifi size={10} /> LINK_ACTIVE</span>
-                  <span className="flex items-center gap-1"><Binary size={10} /> ENCRYPTION_OFF</span>
+               <div className="flex justify-center gap-8 text-[10px] text-green-600/60 uppercase tracking-[0.2em] font-bold">
+                  <span className="flex items-center gap-1.5"><Wifi size={12} className="text-green-500" /> Secure Link</span>
+                  <span className="flex items-center gap-1.5"><Binary size={12} className="text-green-500" /> AES-256 Ready</span>
                </div>
             </form>
           </div>
@@ -234,84 +267,96 @@ export default function App() {
             <>
             {/* BLACK SCREEN FIX: If Access Granted but no Data yet, show Decrypting Loader */}
             {!profile ? (
-                <div className="flex flex-col items-center justify-center space-y-4 animate-pulse">
-                    <RefreshCw size={48} className="animate-spin text-green-600" />
-                    <h2 className="text-xl tracking-widest text-green-500">DECRYPTING FINAL PACKETS...</h2>
-                    <p className="text-xs text-green-800">BYPASSING FIREWALL LAYERS</p>
+                <div className="flex flex-col items-center justify-center space-y-6 animate-pulse">
+                    <div className="relative">
+                        <RefreshCw size={64} className="animate-spin text-green-500 opacity-50" />
+                        <Lock size={24} className="absolute top-1/2 left-1/2 -translate-x-1/2 -translate-y-1/2 text-white" />
+                    </div>
+                    <div className="text-center space-y-2">
+                        <h2 className="text-2xl tracking-[0.2em] text-white font-bold drop-shadow-[0_0_10px_rgba(0,255,0,0.5)]">DECRYPTING DATA</h2>
+                        <p className="text-xs text-green-600 tracking-widest">BYPASSING FINAL SECURITY LAYER...</p>
+                    </div>
                 </div>
             ) : (
-             <div className="w-full space-y-6 animate-[fadeIn_0.5s_ease-out]">
-                {/* Header Profile Info */}
-                <div className="border border-green-500/30 bg-black/80 p-6 relative overflow-hidden group">
-                    <div className="absolute top-0 right-0 p-2 opacity-50">
-                        <User size={100} className="text-green-900/40" />
+             <div className="w-full space-y-6 animate-[fadeIn_0.5s_ease-out] relative z-20">
+                {/* Header Profile Info Card */}
+                <div className="border border-green-500/40 bg-black/80 p-8 relative overflow-hidden group shadow-[0_0_30px_rgba(0,255,0,0.05)] backdrop-blur-md rounded-lg">
+                    {/* Background decorations */}
+                    <div className="absolute top-0 right-0 p-4 opacity-20 transform rotate-12 translate-x-4 -translate-y-4 transition-transform group-hover:rotate-0">
+                        <User size={120} className="text-green-500" />
                     </div>
-                    
-                    <div className="relative z-10 space-y-4">
-                        <div className="flex items-start justify-between">
+                    <div className="absolute top-0 left-0 w-32 h-32 bg-green-500/5 rounded-full blur-3xl pointer-events-none"></div>
+
+                    <div className="relative z-10 space-y-6">
+                        <div className="flex flex-col md:flex-row md:items-start justify-between gap-4">
                             <div>
-                                <h2 className="text-3xl font-bold text-white tracking-wider flex items-center gap-2">
+                                <h2 className="text-4xl font-black text-white tracking-wider flex items-center gap-3 drop-shadow-[0_0_5px_rgba(255,255,255,0.5)]">
                                     {profile.username}
-                                    {profile.isVerifiedLive && <CheckCircle size={20} className="text-blue-500" fill="currentColor" color="white" />}
+                                    {profile.isVerifiedLive && <CheckCircle size={24} className="text-blue-500 fill-blue-500/20" />}
                                 </h2>
-                                <p className="text-green-600 text-sm tracking-widest mt-1 uppercase flex items-center gap-2">
-                                    <Shield size={12} /> RISK LEVEL: <span className={`${profile.riskLevel === 'CRITICAL' || profile.riskLevel === 'EXTREME' ? 'text-red-500 animate-pulse' : 'text-yellow-500'}`}>{profile.riskLevel}</span>
-                                </p>
+                                <div className="flex items-center gap-4 mt-2">
+                                    <p className="text-xs bg-green-900/30 text-green-400 px-2 py-1 rounded border border-green-500/20 uppercase tracking-widest flex items-center gap-2">
+                                        <Shield size={10} /> TARGET_STATUS: OPEN
+                                    </p>
+                                    <p className="text-xs uppercase tracking-widest flex items-center gap-2">
+                                        RISK: <span className={`font-bold ${profile.riskLevel === 'CRITICAL' || profile.riskLevel === 'EXTREME' ? 'text-red-500 drop-shadow-[0_0_5px_rgba(255,0,0,0.5)] animate-pulse' : 'text-yellow-400'}`}>{profile.riskLevel}</span>
+                                    </p>
+                                </div>
                             </div>
-                            <div className="text-right hidden md:block">
-                                <p className="text-xs text-green-800">IP_ADDR</p>
-                                <p className="text-green-400 font-mono">{profile.ipAddress}</p>
-                            </div>
-                        </div>
-
-                        {/* Social Graph Stats */}
-                        <div className="grid grid-cols-3 gap-4 border-y border-green-900/50 py-4 my-2">
-                            <div className="text-center">
-                                <p className="text-[10px] text-green-700 uppercase tracking-widest">Followers</p>
-                                <p className="text-xl text-white font-bold">{profile.followers}</p>
-                            </div>
-                            <div className="text-center border-l border-green-900/50">
-                                <p className="text-[10px] text-green-700 uppercase tracking-widest">Following</p>
-                                <p className="text-xl text-white font-bold">{profile.following}</p>
-                            </div>
-                            <div className="text-center border-l border-green-900/50">
-                                <p className="text-[10px] text-green-700 uppercase tracking-widest">Posts</p>
-                                <p className="text-xl text-white font-bold">{profile.posts}</p>
+                            <div className="text-left md:text-right bg-green-900/10 p-2 rounded border border-green-500/10 md:bg-transparent md:border-none">
+                                <p className="text-[10px] text-green-600 uppercase tracking-widest mb-1">Last Known IP</p>
+                                <p className="text-green-300 font-mono text-lg tracking-wider">{profile.ipAddress}</p>
                             </div>
                         </div>
 
-                        <div className="grid grid-cols-1 md:grid-cols-2 gap-6 text-sm">
+                        {/* Social Graph Stats - High Contrast */}
+                        <div className="grid grid-cols-3 gap-px bg-green-900/30 border border-green-500/30 rounded-lg overflow-hidden shadow-inner">
+                            <div className="text-center bg-black/60 p-4 hover:bg-green-900/10 transition-colors cursor-default">
+                                <p className="text-[10px] text-green-500/80 uppercase tracking-widest mb-1">Followers</p>
+                                <p className="text-2xl text-white font-bold tracking-tight">{profile.followers}</p>
+                            </div>
+                            <div className="text-center bg-black/60 p-4 hover:bg-green-900/10 transition-colors cursor-default">
+                                <p className="text-[10px] text-green-500/80 uppercase tracking-widest mb-1">Following</p>
+                                <p className="text-2xl text-white font-bold tracking-tight">{profile.following}</p>
+                            </div>
+                            <div className="text-center bg-black/60 p-4 hover:bg-green-900/10 transition-colors cursor-default">
+                                <p className="text-[10px] text-green-500/80 uppercase tracking-widest mb-1">Posts</p>
+                                <p className="text-2xl text-white font-bold tracking-tight">{profile.posts}</p>
+                            </div>
+                        </div>
+
+                        <div className="grid grid-cols-1 md:grid-cols-2 gap-6 text-sm bg-black/40 p-4 rounded border border-green-500/10">
                             <div className="space-y-1">
-                                <span className="text-green-800 text-xs uppercase block">Real Name (Simulated)</span>
-                                <span className="text-green-300">{profile.realName}</span>
+                                <span className="text-green-700 text-[10px] uppercase tracking-widest block">Full Name</span>
+                                <span className="text-white text-lg tracking-wide">{profile.realName}</span>
                             </div>
                             <div className="space-y-1">
-                                <span className="text-green-800 text-xs uppercase block">Location</span>
-                                <span className="text-green-300">{profile.location}</span>
+                                <span className="text-green-700 text-[10px] uppercase tracking-widest block">Geolocation</span>
+                                <span className="text-white text-lg tracking-wide">{profile.location}</span>
                             </div>
-                             <div className="space-y-1 md:col-span-2">
-                                <span className="text-green-800 text-xs uppercase block">Bio</span>
-                                <span className="text-white italic opacity-80 border-l-2 border-green-700 pl-3 block">{profile.bio}</span>
+                             <div className="space-y-2 md:col-span-2 mt-2">
+                                <span className="text-green-700 text-[10px] uppercase tracking-widest block">Bio Metadata</span>
+                                <span className="text-green-100/80 italic text-sm border-l-2 border-green-500 pl-4 block py-1 bg-green-900/5">{profile.bio}</span>
                             </div>
                         </div>
 
                         {/* LIVE VERIFY BUTTON */}
-                        <div className="mt-4 pt-4 border-t border-green-900/30 flex justify-end">
+                        <div className="mt-4 flex justify-end">
                              <button 
                                 onClick={handleLiveVerify}
                                 disabled={isVerifying || profile.isVerifiedLive}
-                                className={`flex items-center gap-2 text-xs px-4 py-2 uppercase font-bold tracking-wider transition-all
+                                className={`flex items-center gap-2 text-xs px-6 py-2.5 rounded uppercase font-bold tracking-[0.15em] transition-all shadow-lg
                                     ${profile.isVerifiedLive 
-                                        ? 'bg-blue-900/20 text-blue-400 border border-blue-800 cursor-default' 
-                                        : 'bg-green-900/20 text-green-400 border border-green-600 hover:bg-green-800/40 hover:text-white'
+                                        ? 'bg-blue-500/10 text-blue-400 border border-blue-500/30 cursor-default' 
+                                        : 'bg-green-600 text-black border border-green-400 hover:bg-green-500 hover:shadow-[0_0_15px_rgba(0,255,0,0.4)] hover:scale-105'
                                     }`}
                              >
                                  {isVerifying ? (
-                                     <><RefreshCw className="animate-spin" size={14}/> CONNECTING...</>
+                                     <><RefreshCw className="animate-spin" size={14}/> SYNCING...</>
                                  ) : profile.isVerifiedLive ? (
-                                     <><CheckCircle size={14}/> VERIFIED LIVE</>
+                                     <><CheckCircle size={14}/> LIVE CONNECTION VERIFIED</>
                                  ) : (
-                                     <><Radio size={14}/> VERIFY LIVE</>
+                                     <><Radio size={14}/> ESTABLISH LIVE UPLINK</>
                                  )}
                              </button>
                         </div>
@@ -319,28 +364,33 @@ export default function App() {
                 </div>
 
                 {/* SENSITIVE DATA SECTION */}
-                <div className="grid grid-cols-1 md:grid-cols-2 gap-4">
+                <div className="grid grid-cols-1 md:grid-cols-2 gap-6">
                     {/* PHONE */}
-                    <div className="border border-green-900 bg-black/50 p-4 relative overflow-hidden">
-                        <div className="flex items-center gap-3 mb-2">
-                            <Smartphone size={20} className="text-green-600" />
-                            <h3 className="text-green-500 font-bold uppercase tracking-wider">Mobile Number</h3>
+                    <div className="border border-green-500/30 bg-black/60 p-5 relative overflow-hidden rounded-lg backdrop-blur-sm shadow-lg group hover:border-green-500/60 transition-colors">
+                        <div className="absolute top-0 right-0 p-2 opacity-10 group-hover:opacity-20 transition-opacity">
+                            <Smartphone size={60} />
                         </div>
-                        <div className="bg-black border border-green-900/50 p-3 font-mono text-center relative h-12 flex items-center justify-center">
+                        <div className="flex items-center gap-3 mb-4">
+                            <div className="p-1.5 bg-green-900/30 rounded text-green-400">
+                                <Smartphone size={18} />
+                            </div>
+                            <h3 className="text-white font-bold uppercase tracking-wider text-sm">Mobile Contact</h3>
+                        </div>
+                        <div className="bg-black/80 border border-green-900/50 rounded p-4 font-mono text-center relative h-14 flex items-center justify-center shadow-inner">
                             {showPhone ? (
-                                <span className="text-white text-lg tracking-widest drop-shadow-[0_0_5px_rgba(255,255,255,0.5)]">
+                                <span className="text-white text-xl tracking-widest font-bold drop-shadow-[0_0_5px_rgba(255,255,255,0.7)]">
                                     {profile.phone}
                                 </span>
                             ) : decryptingPhone ? (
-                                <span className="text-green-500 animate-pulse text-xs">CRACKING AES-256...</span>
+                                <span className="text-green-500 animate-pulse text-xs tracking-widest font-bold">DECRYPTING KEY AES-256...</span>
                             ) : (
-                                <span className="text-green-900 tracking-widest text-lg">***********</span>
+                                <span className="text-green-800 tracking-widest text-xl opacity-50">***********</span>
                             )}
                             
                             {!showPhone && !decryptingPhone && (
                                 <button 
                                     onClick={() => handleDecrypt('phone')}
-                                    className="absolute inset-0 bg-green-900/10 hover:bg-green-900/30 flex items-center justify-center gap-2 text-green-400 font-bold text-xs uppercase tracking-widest transition-all backdrop-blur-[2px]"
+                                    className="absolute inset-0 bg-green-500/10 hover:bg-green-500/20 flex items-center justify-center gap-2 text-green-400 font-bold text-xs uppercase tracking-[0.2em] transition-all backdrop-blur-[1px] border border-green-500/20 hover:border-green-500/50"
                                 >
                                     <Lock size={12} /> Decrypt
                                 </button>
@@ -349,26 +399,31 @@ export default function App() {
                     </div>
 
                     {/* EMAIL */}
-                    <div className="border border-green-900 bg-black/50 p-4 relative overflow-hidden">
-                        <div className="flex items-center gap-3 mb-2">
-                            <Mail size={20} className="text-green-600" />
-                            <h3 className="text-green-500 font-bold uppercase tracking-wider">Email Address</h3>
+                    <div className="border border-green-500/30 bg-black/60 p-5 relative overflow-hidden rounded-lg backdrop-blur-sm shadow-lg group hover:border-green-500/60 transition-colors">
+                        <div className="absolute top-0 right-0 p-2 opacity-10 group-hover:opacity-20 transition-opacity">
+                            <Mail size={60} />
                         </div>
-                         <div className="bg-black border border-green-900/50 p-3 font-mono text-center relative h-12 flex items-center justify-center">
+                        <div className="flex items-center gap-3 mb-4">
+                            <div className="p-1.5 bg-green-900/30 rounded text-green-400">
+                                <Mail size={18} />
+                            </div>
+                            <h3 className="text-white font-bold uppercase tracking-wider text-sm">Email Address</h3>
+                        </div>
+                         <div className="bg-black/80 border border-green-900/50 rounded p-4 font-mono text-center relative h-14 flex items-center justify-center shadow-inner">
                             {showEmail ? (
-                                <span className="text-white text-sm tracking-wider drop-shadow-[0_0_5px_rgba(255,255,255,0.5)]">
+                                <span className="text-white text-sm tracking-wider font-bold drop-shadow-[0_0_5px_rgba(255,255,255,0.7)]">
                                     {profile.email}
                                 </span>
                             ) : decryptingEmail ? (
-                                <span className="text-green-500 animate-pulse text-xs">BRUTE FORCING...</span>
+                                <span className="text-green-500 animate-pulse text-xs tracking-widest font-bold">BRUTE FORCING SERVER...</span>
                             ) : (
-                                <span className="text-green-900 tracking-widest text-lg">*****************</span>
+                                <span className="text-green-800 tracking-widest text-xl opacity-50">*****************</span>
                             )}
 
                             {!showEmail && !decryptingEmail && (
                                 <button 
                                     onClick={() => handleDecrypt('email')}
-                                    className="absolute inset-0 bg-green-900/10 hover:bg-green-900/30 flex items-center justify-center gap-2 text-green-400 font-bold text-xs uppercase tracking-widest transition-all backdrop-blur-[2px]"
+                                    className="absolute inset-0 bg-green-500/10 hover:bg-green-500/20 flex items-center justify-center gap-2 text-green-400 font-bold text-xs uppercase tracking-[0.2em] transition-all backdrop-blur-[1px] border border-green-500/20 hover:border-green-500/50"
                                 >
                                     <Lock size={12} /> Decrypt
                                 </button>
@@ -379,22 +434,25 @@ export default function App() {
 
                 {/* LIVE FEED PREVIEWS (Only show if Verified) */}
                 {profile.postPreviews && profile.postPreviews.length > 0 && (
-                     <div className="border border-green-900/30 bg-black/40 p-4">
-                        <div className="flex items-center gap-2 mb-4 text-green-500 border-b border-green-900/50 pb-2">
-                            <ImageIcon size={16} />
-                            <h3 className="text-xs font-bold uppercase tracking-widest">LATEST INTERCEPTED MEDIA</h3>
+                     <div className="border border-green-500/20 bg-black/60 p-5 rounded-lg shadow-lg backdrop-blur-md">
+                        <div className="flex items-center justify-between mb-4 border-b border-green-500/20 pb-2">
+                            <div className="flex items-center gap-2 text-white">
+                                <ImageIcon size={16} className="text-green-500" />
+                                <h3 className="text-xs font-bold uppercase tracking-[0.2em]">Intercepted Media Feed</h3>
+                            </div>
+                            <span className="text-[9px] text-green-500 animate-pulse">● LIVE STREAM</span>
                         </div>
-                        <div className="grid grid-cols-3 gap-2">
+                        <div className="grid grid-cols-3 gap-3">
                             {profile.postPreviews.map((post) => (
-                                <div key={post.id} className="aspect-square bg-green-900/10 border border-green-900/30 relative group overflow-hidden">
+                                <div key={post.id} className="aspect-square bg-gray-900/80 border border-green-500/20 rounded relative group overflow-hidden shadow-inner hover:border-green-500/50 transition-colors cursor-crosshair">
                                      {/* Simulated Image Content */}
-                                     <div className="absolute inset-0 flex items-center justify-center text-green-900/30">
-                                         {post.type === 'REEL' ? <PlayCircle size={24}/> : <ImageIcon size={24}/>}
+                                     <div className="absolute inset-0 flex items-center justify-center text-green-700/30 group-hover:text-green-500/50 transition-colors">
+                                         {post.type === 'REEL' ? <PlayCircle size={32}/> : <ImageIcon size={32}/>}
                                      </div>
-                                     <div className="absolute inset-0 bg-gradient-to-t from-black via-transparent to-transparent opacity-80"></div>
-                                     <div className="absolute bottom-1 left-2 text-[8px] text-green-400 space-y-0.5">
-                                         <div className="flex items-center gap-1"><Heart size={8} fill="currentColor"/> {post.likes}</div>
-                                         <div className="flex items-center gap-1"><MessageCircle size={8}/> {post.comments}</div>
+                                     <div className="absolute inset-0 bg-gradient-to-t from-black via-transparent to-transparent opacity-90"></div>
+                                     <div className="absolute bottom-2 left-2 text-[10px] text-white space-y-1 font-sans">
+                                         <div className="flex items-center gap-1.5"><Heart size={10} fill="#ef4444" className="text-red-500"/> {post.likes}</div>
+                                         <div className="flex items-center gap-1.5"><MessageCircle size={10} className="text-blue-400"/> {post.comments}</div>
                                      </div>
                                 </div>
                             ))}
@@ -403,22 +461,23 @@ export default function App() {
                 )}
                 
                 {/* SYSTEM LOGS */}
-                <div className="border border-green-900/30 bg-black p-4 font-mono text-[10px] text-green-700 h-32 overflow-y-auto custom-scrollbar">
-                    {profile.weaknesses.map((w, i) => (
-                        <div key={i} className="mb-1">{`> VULNERABILITY DETECTED: ${w}`}</div>
+                <div className="border border-green-500/30 bg-black/90 p-4 font-mono text-[10px] text-green-500/80 h-32 overflow-y-auto custom-scrollbar rounded shadow-inner">
+                    <div className="sticky top-0 bg-black/90 pb-2 mb-2 border-b border-green-900/50 font-bold text-green-400">SYSTEM_LOGS // ROOT_ACCESS</div>
+                    {(profile.weaknesses || []).map((w, i) => (
+                        <div key={i} className="mb-1 hover:text-green-300 transition-colors">{`> [VULNERABILITY] ${w}`}</div>
                     ))}
-                    {profile.recentActivity.map((a, i) => (
-                        <div key={i+10} className="mb-1">{`> LOG: ${a}`}</div>
+                    {(profile.recentActivity || []).map((a, i) => (
+                        <div key={i+10} className="mb-1 hover:text-green-300 transition-colors">{`> [ACTIVITY_LOG] ${a}`}</div>
                     ))}
-                    <div className="animate-pulse">{`> AWAITING COMMAND..._`}</div>
+                    <div className="animate-pulse text-green-400">{`> AWAITING COMMAND..._`}</div>
                 </div>
 
-                <div className="flex justify-center pt-8">
+                <div className="flex justify-center pt-6 pb-4">
                     <button 
                         onClick={resetSystem}
-                        className="text-green-500 hover:text-white border border-green-700 hover:border-white px-8 py-2 uppercase tracking-widest text-xs transition-all"
+                        className="text-white hover:text-green-300 border border-green-500/50 hover:border-green-400 hover:bg-green-500/10 px-8 py-3 rounded uppercase tracking-[0.2em] text-xs font-bold transition-all shadow-[0_0_15px_rgba(0,255,0,0.1)] hover:shadow-[0_0_25px_rgba(0,255,0,0.3)]"
                     >
-                        NEW TARGET
+                        INITIATE NEW TARGET
                     </button>
                 </div>
              </div>

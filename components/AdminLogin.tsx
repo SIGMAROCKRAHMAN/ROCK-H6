@@ -132,83 +132,85 @@ const AdminLogin: React.FC<AdminLoginProps> = ({ onLogin }) => {
   };
 
   return (
-    <div className="z-50 flex flex-col items-center justify-center w-full max-w-lg p-4 relative">
+    <div className="z-50 flex flex-col items-center justify-center w-full max-w-lg p-6 relative">
         
         {/* Intimidating Header */}
-        <div className={`text-center space-y-4 mb-8 ${shake ? 'translate-x-[-10px]' : ''} transition-transform duration-75`}>
+        <div className={`text-center space-y-6 mb-10 ${shake ? 'translate-x-[-10px]' : ''} transition-transform duration-75`}>
             <div className="relative inline-block group">
-                <div className="absolute inset-0 bg-red-600 blur-2xl opacity-20 animate-pulse"></div>
-                <Skull size={100} className={`text-red-600 relative z-10 ${glitch ? 'opacity-50 translate-x-1' : 'opacity-100'}`} />
-                <div className="absolute top-0 left-0 w-full h-full border-t-2 border-red-500 opacity-50 animate-scan"></div>
+                <div className="absolute inset-0 bg-red-600 blur-[60px] opacity-20 animate-pulse"></div>
+                <Skull size={110} className={`text-red-600 relative z-10 drop-shadow-[0_0_15px_rgba(255,0,0,0.6)] ${glitch ? 'opacity-50 translate-x-1' : 'opacity-100'}`} />
             </div>
-            <h1 className="text-4xl md:text-6xl font-black text-red-600 tracking-[0.2em] uppercase glitch-text" style={{ textShadow: '2px 2px 0px #000, -1px -1px 0 #300' }}>
-                SYSTEM LOCKED
-            </h1>
-            <p className="text-red-400 font-bold tracking-widest text-xs md:text-sm animate-pulse border-y border-red-900/50 py-2">
-                WARNING: CLASSIFIED GOVERNMENT DATABASE
+            <div>
+                <h1 className="text-5xl md:text-7xl font-black text-white tracking-[0.1em] uppercase glitch-text" style={{ textShadow: '4px 4px 0px #991b1b' }}>
+                    SYSTEM <span className="text-red-600">LOCK</span>
+                </h1>
+                <div className="h-1 w-24 bg-red-600 mx-auto mt-2 shadow-[0_0_15px_#f00]"></div>
+            </div>
+            <p className="text-red-400 font-bold tracking-[0.3em] text-xs md:text-sm animate-pulse">
+                LEVEL 5 CLEARANCE REQUIRED
             </p>
         </div>
 
         {/* Login Form Container */}
-        <div className={`w-full bg-black/90 border-2 ${error ? 'border-red-600' : 'border-red-900'} shadow-[0_0_30px_rgba(220,38,38,0.3)] p-6 md:p-8 relative overflow-hidden`}>
+        <div className={`w-full bg-black/80 border border-red-900/50 backdrop-blur-md shadow-[0_0_40px_rgba(220,38,38,0.15)] p-8 md:p-10 relative overflow-hidden rounded-xl`}>
             
-            {/* Corner Markers */}
-            <div className="absolute top-0 left-0 w-4 h-4 border-t-2 border-l-2 border-red-600"></div>
-            <div className="absolute top-0 right-0 w-4 h-4 border-t-2 border-r-2 border-red-600"></div>
-            <div className="absolute bottom-0 left-0 w-4 h-4 border-b-2 border-l-2 border-red-600"></div>
-            <div className="absolute bottom-0 right-0 w-4 h-4 border-b-2 border-r-2 border-red-600"></div>
+            {/* Corner Markers - Clean & Sharp */}
+            <div className="absolute top-0 left-0 w-6 h-6 border-t-2 border-l-2 border-red-600 rounded-tl"></div>
+            <div className="absolute top-0 right-0 w-6 h-6 border-t-2 border-r-2 border-red-600 rounded-tr"></div>
+            <div className="absolute bottom-0 left-0 w-6 h-6 border-b-2 border-l-2 border-red-600 rounded-bl"></div>
+            <div className="absolute bottom-0 right-0 w-6 h-6 border-b-2 border-r-2 border-red-600 rounded-br"></div>
 
-            <form onSubmit={handleLogin} className="space-y-4 relative z-10">
+            <form onSubmit={handleLogin} className="space-y-6 relative z-10">
                 {error && (
-                    <div className="bg-red-950/50 border border-red-500 p-2 flex items-center gap-3 text-red-500 text-xs font-bold animate-pulse">
-                        <ShieldAlert size={16} />
+                    <div className="bg-red-950/40 border-l-4 border-red-600 p-3 flex items-center gap-3 text-red-400 text-xs font-bold animate-pulse shadow-inner">
+                        <ShieldAlert size={20} className="shrink-0" />
                         {error}
                     </div>
                 )}
 
-                <div className="space-y-1">
-                    <label className="text-red-700 text-[10px] uppercase tracking-widest font-bold flex items-center gap-2">
+                <div className="space-y-2">
+                    <label className="text-red-500/80 text-[10px] uppercase tracking-[0.2em] font-bold flex items-center gap-2">
                         <Fingerprint size={12} /> Admin Codename
                     </label>
                     <input 
                         type="text" 
                         value={username}
                         onChange={(e) => setUsername(e.target.value)}
-                        className="w-full bg-red-950/10 border border-red-800 text-red-500 px-4 py-3 font-mono focus:outline-none focus:border-red-500 focus:bg-red-900/20 transition-all text-center tracking-widest placeholder-red-900/50 uppercase"
+                        className="w-full bg-black/50 border border-red-900/60 text-white px-4 py-3.5 font-mono focus:outline-none focus:border-red-500 focus:bg-red-950/20 transition-all text-center tracking-widest placeholder-red-900/30 uppercase rounded text-sm shadow-inner"
                         placeholder="ENTER ID"
                         autoComplete="off"
                     />
                 </div>
 
-                <div className="space-y-1">
-                    <label className="text-red-700 text-[10px] uppercase tracking-widest font-bold flex items-center gap-2">
+                <div className="space-y-2">
+                    <label className="text-red-500/80 text-[10px] uppercase tracking-[0.2em] font-bold flex items-center gap-2">
                         <Lock size={12} /> Security Passkey
                     </label>
                     <input 
                         type="password" 
                         value={password}
                         onChange={(e) => setPassword(e.target.value)}
-                        className="w-full bg-red-950/10 border border-red-800 text-red-500 px-4 py-3 font-mono focus:outline-none focus:border-red-500 focus:bg-red-900/20 transition-all text-center tracking-widest placeholder-red-900/50"
+                        className="w-full bg-black/50 border border-red-900/60 text-white px-4 py-3.5 font-mono focus:outline-none focus:border-red-500 focus:bg-red-950/20 transition-all text-center tracking-widest placeholder-red-900/30 rounded text-sm shadow-inner"
                         placeholder="••••••••"
                     />
                 </div>
 
                 <button 
                     type="submit" 
-                    className="w-full bg-red-700 hover:bg-red-600 text-black font-black py-3 uppercase tracking-widest transition-all hover:shadow-[0_0_20px_rgba(220,38,38,0.5)] flex items-center justify-center gap-2 group"
+                    className="w-full bg-red-700 hover:bg-red-600 text-white font-black py-4 uppercase tracking-[0.2em] transition-all hover:shadow-[0_0_25px_rgba(220,38,38,0.4)] hover:scale-[1.02] active:scale-[0.98] flex items-center justify-center gap-3 group rounded shadow-lg text-sm"
                 >
-                    <Lock size={16} className="group-hover:unlock" /> Authenticate
+                    <Lock size={16} className="group-hover:unlock text-red-200" /> Authenticate
                 </button>
             </form>
 
             {/* DIVIDER */}
-            <div className="flex items-center gap-4 my-6 opacity-50 relative z-10">
-                <div className="h-[1px] bg-red-900 flex-1"></div>
-                <div className="text-red-800 text-[10px] font-bold">BIOMETRIC OVERRIDE</div>
-                <div className="h-[1px] bg-red-900 flex-1"></div>
+            <div className="flex items-center gap-4 my-8 opacity-40 relative z-10">
+                <div className="h-px bg-gradient-to-r from-transparent via-red-700 to-transparent flex-1"></div>
+                <div className="text-red-500 text-[9px] font-bold tracking-[0.2em]">BIOMETRIC OVERRIDE</div>
+                <div className="h-px bg-gradient-to-r from-transparent via-red-700 to-transparent flex-1"></div>
             </div>
 
-            {/* BIOMETRIC SCANNER */}
+            {/* BIOMETRIC SCANNER - HD Style */}
             <div className="relative z-10 flex flex-col items-center">
                 <div 
                     className="group relative cursor-pointer select-none"
@@ -219,27 +221,28 @@ const AdminLogin: React.FC<AdminLoginProps> = ({ onLogin }) => {
                     onTouchEnd={() => setScanning(false)}
                 >
                     {/* Scanner Box */}
-                    <div className={`w-24 h-24 border-2 ${scanning ? 'border-red-400 bg-red-900/30' : 'border-red-900 bg-black'} rounded-xl flex items-center justify-center relative overflow-hidden transition-all duration-300 shadow-[0_0_15px_rgba(220,38,38,0.1)] group-hover:shadow-[0_0_25px_rgba(220,38,38,0.3)]`}>
+                    <div className={`w-28 h-28 border border-red-900/50 ${scanning ? 'bg-red-950/30 shadow-[0_0_30px_rgba(220,38,38,0.3)]' : 'bg-black shadow-[inset_0_0_20px_rgba(0,0,0,1)]'} rounded-2xl flex items-center justify-center relative overflow-hidden transition-all duration-300`}>
                         
                         {/* Fingerprint Icon */}
                         <Fingerprint 
-                            size={48} 
-                            className={`text-red-700 transition-all duration-300 ${scanning ? 'scale-110 text-red-400 animate-pulse' : 'group-hover:text-red-500'}`} 
+                            size={56} 
+                            strokeWidth={1}
+                            className={`text-red-800 transition-all duration-300 ${scanning ? 'scale-110 text-red-500 drop-shadow-[0_0_10px_rgba(255,0,0,0.8)]' : 'group-hover:text-red-700'}`} 
                         />
                         
                         {/* Scan Beam */}
-                        <div className={`absolute top-0 left-0 w-full h-[2px] bg-red-500 shadow-[0_0_15px_#f00] z-20 ${scanning ? 'animate-[scan_1s_ease-in-out_infinite]' : 'hidden'}`}></div>
+                        <div className={`absolute top-0 left-0 w-full h-[2px] bg-red-400 shadow-[0_0_20px_#f00] z-20 ${scanning ? 'animate-[scan_1s_ease-in-out_infinite]' : 'hidden'}`}></div>
 
                         {/* Progress Fill */}
                         <div 
-                            className="absolute bottom-0 left-0 w-full bg-red-600 z-10 opacity-40 transition-all duration-75 ease-linear"
+                            className="absolute bottom-0 left-0 w-full bg-red-600 z-10 opacity-20 transition-all duration-75 ease-linear"
                             style={{ height: `${scanProgress}%` }}
                         ></div>
                     </div>
                     
                     {/* Scan Text */}
-                    <div className="text-center mt-3 h-4 w-full">
-                        <p className={`text-[10px] font-bold tracking-[0.2em] whitespace-nowrap ${scanning || scanProgress === 100 ? 'text-red-400 animate-pulse' : 'text-red-900 group-hover:text-red-600'} transition-colors`}>
+                    <div className="text-center mt-4 h-4 w-full">
+                        <p className={`text-[10px] font-bold tracking-[0.3em] whitespace-nowrap ${scanning || scanProgress === 100 ? 'text-red-400 animate-pulse' : 'text-red-800 group-hover:text-red-600'} transition-colors`}>
                             {bioStatus}
                         </p>
                     </div>
@@ -253,14 +256,11 @@ const AdminLogin: React.FC<AdminLoginProps> = ({ onLogin }) => {
         </div>
 
         {/* Footer Info */}
-        <div className="mt-8 text-center space-y-2 opacity-60">
-            <div className="flex items-center justify-center gap-2 text-[10px] text-red-500 uppercase tracking-widest">
-                <Radio size={12} className="animate-ping" />
-                <span>Monitoring Active Connection</span>
+        <div className="mt-10 text-center space-y-2 opacity-50">
+            <div className="flex items-center justify-center gap-2 text-[9px] text-red-500 uppercase tracking-[0.2em]">
+                <Radio size={10} className="animate-ping" />
+                <span>Secure Connection Active</span>
             </div>
-            <p className="text-[9px] text-red-800 font-mono">
-                UNAUTHORIZED ACCESS IS A FEDERAL OFFENSE. <br/> YOUR IP ADDRESS AND DEVICE FINGERPRINT HAVE BEEN LOGGED.
-            </p>
         </div>
 
     </div>
